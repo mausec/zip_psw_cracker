@@ -61,15 +61,14 @@ def func_main():
     # We validate the user input for zip and password file indeed exist.
     if os.path.isfile(ZIP_FNAME) and os.path.isfile(PASSWD_FNAME):
         # We create a zip file object with user supplied zipfile.
-        #zip_file_obj = zipfile.ZipFile(ZIP_FNAME)
         with zipfile.ZipFile(ZIP_FNAME, mode="r") as zip_file_obj:
             # Reading the password file and generate a list with it's content.
             with open(PASSWD_FNAME, encoding="utf-8") as fileobj:
                 password_list = [word.strip("\n")
                                  for word in fileobj.readlines()]
                 # We do a for loop to iterate over the password list.
-                for pwd in password_list:
-                    if STOP_LST:
+                for pwd in set(password_list):
+                    if STOP_LST:  # if True we signal to pause threads
                         signal.signal(signal.SIGINT, signal_handler)
                         print(Fore.RED + " " * 14 + "Press Ctrl+C")
                         signal.pause()
@@ -106,3 +105,5 @@ except ValueError as err_msg:
     logging.error(err_msg)
 except KeyboardInterrupt as err_msg:
     logging.error(err_msg)
+
+print(Fore.RED + "\nPassword not Found, try another wordlist.")
