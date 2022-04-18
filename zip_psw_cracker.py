@@ -11,9 +11,6 @@ import logging
 import zipfile
 import zlib
 import os
-import signal
-import sys
-from threading import Thread
 from colorama import Fore
 ###############################################################################
 ###############################################################################
@@ -40,20 +37,21 @@ def func_greet():
 
 def func_zip_cracker(zfile, password):
     """[Function for cracking zip password]"""
-    try:
-        password = bytes(password, "utf-8")
-        zfile.extractall(pwd=password)
-        print(Fore.YELLOW + " " * 14 +
-              "Cracked Password: " + password.decode("utf-8"))
-        STOP_LST.append("stopme")
-    except RuntimeError:
-        pass
-    except zlib.error:
-        pass
-    except zipfile.BadZipFile:
-        pass
-    except ValueError as errmsg:
-        logging.error(errmsg)
+    for passwd in set(password):
+        try:
+            password = bytes(passwd, "utf-8")
+            zfile.extractall(pwd=password)
+            print(Fore.YELLOW + " " * 14 +
+                  "Cracked Password: " + password.decode("utf-8"))
+            break
+        except RuntimeError:
+            pass
+        except zlib.error:
+            pass
+        except zipfile.BadZipFile:
+            pass
+        except ValueError as errmsg:
+            logging.error(errmsg)
 
 
 def func_main():
@@ -66,24 +64,7 @@ def func_main():
             with open(PASSWD_FNAME, encoding="utf-8") as fileobj:
                 password_list = [word.strip("\n")
                                  for word in fileobj.readlines()]
-                # We do a for loop to iterate over the password list.
-                for pwd in set(password_list):
-                    if STOP_LST:  # if True we signal to pause threads
-                        signal.signal(signal.SIGINT, signal_handler)
-                        print(Fore.RED + " " * 14 + "Press Ctrl+C")
-                        signal.pause()
-                    # We define our threading function and it's arguments.
-                    thr = Thread(target=func_zip_cracker,
-                                 args=(zip_file_obj, pwd))
-                    thr.daemon = True
-                    thr.start()  # We start our threading function.
-                    thr.join()
-
-
-def signal_handler(signum, frame):
-    """[Function used to assist me in exiting Thread.]"""
-    print("\t\t ", signum)
-    sys.exit(0)
+                func_zip_cracker(zip_file_obj, set(password_list))
 
 
 ###############################################################################
@@ -106,4 +87,4 @@ except ValueError as err_msg:
 except KeyboardInterrupt as err_msg:
     logging.error(err_msg)
 
-print(Fore.RED + "\nPassword not Found, try another wordlist.")
+print(Fore.RED + "\nCompleted")
