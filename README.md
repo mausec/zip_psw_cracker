@@ -7,3 +7,6 @@ UNDER NO CIRCUMSTANCE SHALL WE HAVE ANY LIABILITY TO YOU FOR ANY LOSS OR DAMAGE 
 YOUR USE OF THE SCRIPT IS SOLELY AT YOUR OWN RISK.
 
 I by no means is an expert in python. But would appreciate positive feedback to improve my skills.
+
+This script run on a single thread since the password files sizes i tested with are reasonable in size.
+ 
